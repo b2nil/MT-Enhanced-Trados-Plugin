@@ -13,9 +13,6 @@
    limitations under the License.*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
 
 namespace MtEnhancedTradosPlugin
@@ -30,9 +27,13 @@ namespace MtEnhancedTradosPlugin
         private static string _apiKey;
         private static string _clientsecret;
         private static string _clientid;
+        private static string _baiduAppId;
+        private static string _baiduApiKey;
         const string msTranslatorString = "Microsoft Translator"; //these strings should not be localized or changed and are therefore hard-coded as constants
         const string gTranslateString = "Google Translate"; //these strings should not be localized or changed and are therefore hard-coded as constants
-        
+
+        const string bTranslateString = "Baidu Translate"; //these strings should not be localized or changed and are therefore hard-coded as constants
+
         #region "TranslationMethod"
         //The translation method affects when/if the plugin gets called by Studio
         public static readonly TranslationMethod ProviderTranslationMethod = TranslationMethod.MachineTranslation;
@@ -118,6 +119,7 @@ namespace MtEnhancedTradosPlugin
         {
             GoogleTranslate = 1,
             MicrosoftTranslator = 2,
+            BaiduTranslate = 3,
             None = 0
         }
 
@@ -127,6 +129,8 @@ namespace MtEnhancedTradosPlugin
                 return gTranslateString; //these strings should not be localized and are therefore hard-coded
             else if (type == ProviderType.MicrosoftTranslator)
                 return msTranslatorString; //these strings should not be localized and are therefore hard-coded
+            else if (type == ProviderType.BaiduTranslate)
+                return bTranslateString; //these strings should not be localized and are therefore hard-coded
             else
                 return "";
         }
@@ -141,6 +145,8 @@ namespace MtEnhancedTradosPlugin
                 return ProviderType.GoogleTranslate;
             else if (typeString.Equals(msTranslatorString)) //these strings should not be localized and are therefore hard-coded
                 return ProviderType.MicrosoftTranslator;
+            else if (typeString.Equals(bTranslateString)) //these strings should not be localized and are therefore hard-coded
+                return ProviderType.BaiduTranslate;
             else
                 return ProviderType.None;
         }
@@ -182,6 +188,18 @@ namespace MtEnhancedTradosPlugin
             set { _clientsecret = value; }
         }
 
+        public string BaiduAppID
+        {
+            get { return _baiduAppId; }
+            set { _baiduAppId = value; }
+        }
+
+        public string BaiduApiKey
+        {
+            get { return _baiduApiKey; }
+            set { _baiduApiKey = value; }
+        }
+
         public bool persistGoogleKey
         {
             get;
@@ -189,6 +207,12 @@ namespace MtEnhancedTradosPlugin
         }
 
         public bool persistMicrosoftCreds
+        {
+            get;
+            set;
+        }
+
+        public bool persistBaiduCreds
         {
             get;
             set;

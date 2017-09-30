@@ -14,12 +14,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Sdl.LanguagePlatform.Core;
-using Sdl.LanguagePlatform.TranslationMemory;
-using Sdl.LanguagePlatform.TranslationMemoryApi;
 using System.Web;
 
 namespace MtEnhancedTradosPlugin

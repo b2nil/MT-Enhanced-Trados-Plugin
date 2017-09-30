@@ -13,12 +13,8 @@
    limitations under the License.*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Sdl.LanguagePlatform.Core;
-using Sdl.LanguagePlatform.TranslationMemory;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
 
 
@@ -70,6 +66,16 @@ namespace MtEnhancedTradosPlugin
             credentialStore.AddCredential(myUri, cred);
         }
 
+        private void SetBdtCredentials(ITranslationProviderCredentialStore credentialStore, GenericCredentials creds, bool persistCred)
+        { //used to set credentials
+            // we are only setting and getting credentials for the uri with no parameters...kind of like a master credential
+            Uri myUri = new Uri("mtenhancedproviderbdt:///");
+
+            TranslationProviderCredential cred = new TranslationProviderCredential(creds.ToCredentialString(), persistCred);
+            credentialStore.RemoveCredential(myUri);
+            credentialStore.AddCredential(myUri, cred);
+        }
+
         private void SetGoogleCredentials(ITranslationProviderCredentialStore credentialStore, string apiKey, bool persistKey)
         { //used to set credentials
             // we are only setting and getting credentials for the uri with no parameters...kind of like a master credential
@@ -107,6 +113,20 @@ namespace MtEnhancedTradosPlugin
                 catch { } //swallow b/c it will just fail to fill in instead of crashing the whole program 
             }
 
+            //get baidu credentials
+            TranslationProviderCredential getCredBdt = GetMyCredentials(credentialStore, "mtenhancedproviderbdt:///");
+            if (getCredBdt != null)
+            {
+                try
+                {
+                    GenericCredentials creds = new GenericCredentials(getCredBdt.Credential);
+                    loadOptions.BaiduAppID = creds.UserName;
+                    loadOptions.BaiduApiKey = creds.Password;
+                    loadOptions.persistBaiduCreds = getCredBdt.Persist;
+                }
+                catch { }
+            }
+
             //construct form
             MtProviderConfDialog dialog = new MtProviderConfDialog(loadOptions, credentialStore);
             //we are letting user delete creds but after testing it seems that it's ok if the individual credentials are null, b/c our method will re-add them to the credstore based on the uri
@@ -126,6 +146,12 @@ namespace MtEnhancedTradosPlugin
                     //set mst cred
                     GenericCredentials creds2 = new GenericCredentials(dialog.Options.ClientID, dialog.Options.ClientSecret);
                     SetMstCredentials(credentialStore, creds2, dialog.Options.persistMicrosoftCreds);
+                }
+                else if (dialog.Options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                {
+                    //set bdt cred
+                    GenericCredentials creds2 = new GenericCredentials(dialog.Options.BaiduAppID, dialog.Options.BaiduApiKey);
+                    SetBdtCredentials(credentialStore, creds2, dialog.Options.persistBaiduCreds);
                 }
 
                 return new ITranslationProvider[] { testProvider };
@@ -189,6 +215,20 @@ namespace MtEnhancedTradosPlugin
                 catch { }//swallow b/c it will just fail to fill in instead of crashing the whole program 
             }
 
+            //get baidu credentials
+            TranslationProviderCredential getCredBdt = GetMyCredentials(credentialStore, "mtenhancedproviderbdt:///");
+            if (getCredBdt != null)
+            {
+                try
+                {
+                    GenericCredentials creds = new GenericCredentials(getCredBdt.Credential); //parse credential into username and password
+                    editProvider.Options.BaiduAppID = creds.UserName;
+                    editProvider.Options.BaiduApiKey = creds.Password;
+                    editProvider.Options.persistBaiduCreds = getCredBdt.Persist;
+                }
+                catch { }//swallow b/c it will just fail to fill in instead of crashing the whole program 
+            }
+
             MtProviderConfDialog dialog = new MtProviderConfDialog(editProvider.Options, credentialStore);
             //we are letting user delete creds but after testing it seems that it's ok if the individual credentials are null, b/c our method will re-add them to the credstore based on the uri
             if (dialog.ShowDialog(owner) == DialogResult.OK)
@@ -208,6 +248,12 @@ namespace MtEnhancedTradosPlugin
                     //set mst cred
                     GenericCredentials creds2 = new GenericCredentials(dialog.Options.ClientID, dialog.Options.ClientSecret);
                     SetMstCredentials(credentialStore, creds2, dialog.Options.persistMicrosoftCreds);
+                }
+                else if (dialog.Options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                {
+                    //set mst cred
+                    GenericCredentials creds2 = new GenericCredentials(dialog.Options.BaiduAppID, dialog.Options.BaiduApiKey);
+                    SetBdtCredentials(credentialStore, creds2, dialog.Options.persistBaiduCreds);
                 }
                 return true;
             }
@@ -238,6 +284,8 @@ namespace MtEnhancedTradosPlugin
                 caption = PluginResources.PromptForCredentialsCaption_Google;
             else if (options.SelectedProvider == MtTranslationOptions.ProviderType.MicrosoftTranslator)
                 caption = PluginResources.PromptForCredentialsCaption_Microsoft;
+            else if (options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                caption = PluginResources.PromptForCredentialsCaption_Baidu;
             
             MtProviderConfDialog dialog = new MtProviderConfDialog(options, caption, credentialStore);
             dialog.DisableForCredentialsOnly(); //only show controls for setting credentials, as that is the only thing that will end up getting saved
@@ -256,6 +304,12 @@ namespace MtEnhancedTradosPlugin
                     //set mst cred
                     GenericCredentials creds2 = new GenericCredentials(dialog.Options.ClientID, dialog.Options.ClientSecret);
                     SetMstCredentials(credentialStore, creds2, dialog.Options.persistMicrosoftCreds);
+                }
+                else if (options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                {
+                    //set bdt cred
+                    GenericCredentials creds2 = new GenericCredentials(dialog.Options.BaiduAppID, dialog.Options.BaiduApiKey);
+                    SetBdtCredentials(credentialStore, creds2, dialog.Options.persistBaiduCreds);
                 }
                 return true;
             }
@@ -289,6 +343,12 @@ namespace MtEnhancedTradosPlugin
                 info.Name = PluginResources.Microsoft_NiceName;
                 info.TooltipText = PluginResources.Microsoft_Tooltip;
                 info.SearchResultImage = PluginResources.microsoft_image;
+            }
+            else if (options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+            {
+                info.Name = PluginResources.Baidu_NiceName;
+                info.TooltipText = PluginResources.Baidu_Tooltip;
+                info.SearchResultImage = PluginResources.baidu_image;
             }
             else
             {

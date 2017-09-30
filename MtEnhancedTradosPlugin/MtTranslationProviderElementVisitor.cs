@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sdl.LanguagePlatform.Core;
+﻿using Sdl.LanguagePlatform.Core;
 
 namespace MtEnhancedTradosPlugin
 {

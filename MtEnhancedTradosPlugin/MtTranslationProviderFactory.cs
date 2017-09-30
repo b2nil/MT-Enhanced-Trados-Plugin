@@ -13,15 +13,7 @@
    limitations under the License.*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sdl.LanguagePlatform.Core;
-using Sdl.LanguagePlatform.TranslationMemory;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
-using MtEnhancedTradosPlugin;
-using System.Threading;
-using System.Globalization;
 
 namespace MtEnhancedTradosPlugin
 {
@@ -70,6 +62,25 @@ namespace MtEnhancedTradosPlugin
                     throw new TranslationProviderAuthenticationException();
                 }
             }
+            else if (loadOptions.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate) // check if we are using Baidu MT
+            {
+                Uri myUri = new Uri("mtenhancedproviderbdt:///");
+                if (credentialStore.GetCredential(myUri) != null)
+                {
+                    bool credPersists = credentialStore.GetCredential(myUri).Persist;
+                    TranslationProviderCredential cred = new TranslationProviderCredential("", credPersists); //will this work??
+
+                    cred = credentialStore.GetCredential(myUri); //if credential is there then just get it
+                    GenericCredentials cred2 = new GenericCredentials(cred.Credential);//convert to generic credentials
+                    //add creds to options
+                    loadOptions.BaiduAppID = cred2.UserName;
+                    loadOptions.BaiduApiKey = cred2.Password;
+                }
+                else
+                {
+                    throw new TranslationProviderAuthenticationException();
+                }
+            }
             else //if we are using Google as the provider need to get API key
             {
                 Uri myUri = new Uri("mtenhancedprovidergt:///");
@@ -84,7 +95,7 @@ namespace MtEnhancedTradosPlugin
                 }
                 else
                 {
-                    throw new TranslationProviderAuthenticationException(); 
+                    throw new TranslationProviderAuthenticationException();
                     //throwing this exception ends up causing Studio to call MtTranslationProviderWinFormsUI.GetCredentialsFromUser();
                     //which we use to prompt the user to enter credentials
                 }

@@ -13,17 +13,12 @@
    limitations under the License.*/
 
 using System;
-using System.IO;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using Sdl.LanguagePlatform.Core;
 using Sdl.Core.Globalization;
 using Sdl.LanguagePlatform.TranslationMemory;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
-using System.Web;
 
 namespace MtEnhancedTradosPlugin
 {
@@ -37,6 +32,7 @@ namespace MtEnhancedTradosPlugin
         private TranslationUnit inputTu;
         private MtTranslationProviderGTApiConnecter gtConnect;
         private MstTranslateConnect.ApiConnecter mstConnect;
+        private BdtTranslateConnect.BaiduApiConnecter bdtConnect;
         private SegmentEditor postLookupSegmentEditor;
         private SegmentEditor preLookupSegmentEditor;
         #endregion
@@ -116,6 +112,25 @@ namespace MtEnhancedTradosPlugin
             return translatedText;
         }
 
+        private string LookupBDT(string sourcetext, MtTranslationOptions options, string format)
+        {
+            string sourcelang = _languageDirection.SourceCulture.ToString();
+            string targetlang = _languageDirection.TargetCulture.ToString();
+
+            //instantiate BaiduApiConnecter if necessary
+            if (bdtConnect == null)
+            {
+                bdtConnect = new BdtTranslateConnect.BaiduApiConnecter(_options);
+            }
+            else
+            {
+                bdtConnect.resetCrd(options.BaiduAppID, options.BaiduApiKey); //reset key in case it has been changed in dialog since BaiduApiConnecter was instantiated
+            }
+
+            string translatedText = bdtConnect.Translate(sourcetext, sourcelang, targetlang);
+            return translatedText;
+        }
+
 
         /// <summary>
         /// Performs the actual search by looping through the
@@ -141,7 +156,7 @@ namespace MtEnhancedTradosPlugin
 
             #region "Confirmation Level"
             if (!_options.ResendDrafts && inputTu.ConfirmationLevel != ConfirmationLevel.Unspecified) //i.e. if it's status is other than untranslated
-            { //don't do the lookup, b/c we don't need to pay google to translate text already translated if we edit a segment
+            { //don't do the lookup, b/c we don't need to pay google/ms/baidu to translate text already translated if we edit a segment
                 translation.Add(PluginResources.TranslationLookupDraftNotResentMessage);
                 //later get these strings from resource file
                 results.Add(CreateSearchResult(segment, translation, segment.ToString()));
@@ -179,6 +194,10 @@ namespace MtEnhancedTradosPlugin
                 {
                     translatedText = LookupMST(tagplacer.PreparedSourceText, _options, "text/html");
                 }
+                else if (_options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                {
+                    translatedText = LookupBDT(tagplacer.PreparedSourceText, _options, "text/html");
+                }
                 //now we send the output back to tagplacer for our properly tagged segment
                 translation = tagplacer.GetTaggedSegment(translatedText).Duplicate();
 
@@ -210,6 +229,10 @@ namespace MtEnhancedTradosPlugin
                 else if (_options.SelectedProvider == MtTranslationOptions.ProviderType.MicrosoftTranslator)
                 {
                     translatedText = LookupMST(sourcetext, _options, "text/plain");
+                }
+                else if(_options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                {
+                    translatedText = LookupBDT(sourcetext, _options, "text/plain");
                 }
 
                 //now do post-edit if that option is checked

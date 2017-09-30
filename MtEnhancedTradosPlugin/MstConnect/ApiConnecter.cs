@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Globalization;
 using System.Xml.Linq;
+using MtEnhancedTradosPlugin;
 
 namespace MstTranslateConnect
 {

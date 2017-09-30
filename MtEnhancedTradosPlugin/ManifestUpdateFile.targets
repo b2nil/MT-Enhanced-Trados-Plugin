@@ -17,7 +17,12 @@ using(StreamReader reader = new StreamReader(ManifestFile))
 }
 string minVersion = "";
 string maxVersion = "";
-if(BuildVersion.Equals("v2015_Debug") || BuildVersion.Equals("v2015_Release"))
+if(BuildVersion.Equals("v2017_Debug") || BuildVersion.Equals("v2017_Release"))
+{
+  minVersion = "14.0.0.0";
+  maxVersion = "14.9.0.0";
+}
+else if(BuildVersion.Equals("v2015_Debug") || BuildVersion.Equals("v2015_Release"))
 {
   minVersion = "12.0";
   maxVersion = "12.9";

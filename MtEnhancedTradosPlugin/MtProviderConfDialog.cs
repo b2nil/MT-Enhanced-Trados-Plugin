@@ -13,17 +13,11 @@
    limitations under the License.*/
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
-using System.Globalization;
-using System.Threading;
 
 namespace MtEnhancedTradosPlugin
 {
@@ -33,10 +27,13 @@ namespace MtEnhancedTradosPlugin
         Point showcredsloc;
         Uri uriMs;
         Uri uriGt;
+        Uri uriBt;
         TranslationProviderCredential gtCred;
         TranslationProviderCredential msCred;
+        TranslationProviderCredential btCred;
         const string msTranslatorString = "Microsoft Translator"; //these strings should not be localized or changed and are therefore hard-coded as constants
         const string gTranslateString = "Google Translate"; //these strings should not be localized or changed and are therefore hard-coded as constants
+        const string bTranslateString = "Baidu Translate"; //these strings should not be localized or changed and are therefore hard-coded as constants
 
 
         #region "ProviderConfDialog"
@@ -45,6 +42,7 @@ namespace MtEnhancedTradosPlugin
             this.credstore = credentialStore;
             uriMs = new Uri("mtenhancedprovidermst:///");
             uriGt = new Uri("mtenhancedprovidergt:///");
+            uriBt = new Uri("mtenhancedproviderbdt:///");
             Options = options;
             InitializeComponent();
             UpdateDialog();
@@ -55,6 +53,7 @@ namespace MtEnhancedTradosPlugin
             this.credstore = credentialStore;
             uriMs = new Uri("mtenhancedprovidermst:///");
             uriGt = new Uri("mtenhancedprovidergt:///");
+            uriBt = new Uri("mtenhancedproviderbdt:///");
             Options = options;
             InitializeComponent();
             UpdateDialog();
@@ -79,13 +78,22 @@ namespace MtEnhancedTradosPlugin
             if (Options.SelectedProvider == MtTranslationOptions.ProviderType.GoogleTranslate)
             {
                 groupBoxMT.Hide();
+                groupBoxBt.Hide();
                 groupBoxGT.Location = toploc;
             }
             else if (Options.SelectedProvider == MtTranslationOptions.ProviderType.MicrosoftTranslator)
             {
                 groupBoxGT.Hide();
+                groupBoxBt.Hide();
                 chkCatId.Hide();
                 txtCatId.Hide();
+                groupBoxMT.Location = toploc;
+            }
+            else if (Options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+            {
+                groupBoxMT.Hide();
+                groupBoxGT.Hide();
+                groupBoxBt.Location = toploc;
             }
             
         }
@@ -108,8 +116,11 @@ namespace MtEnhancedTradosPlugin
             textApiKey.Text = Options.apiKey;
             txtClientId.Text = Options.ClientID;
             txtClientSecret.Text = Options.ClientSecret;
+            txtAppID.Text = Options.BaiduAppID;
+            txtBaiduApiKey.Text = Options.BaiduApiKey;
             chkSaveKey.Checked = Options.persistGoogleKey;
             chkSaveCred.Checked = Options.persistMicrosoftCreds;
+            chkSaveAppIDandKey.Checked = Options.persistBaiduCreds;
             chkPlainTextOnly.Checked = Options.SendPlainTextOnly;
             comboProvider.Text = MtTranslationOptions.GetProviderTypeDescription(Options.SelectedProvider);
             chkCatId.Checked = Options.UseCatID;
@@ -163,20 +174,25 @@ namespace MtEnhancedTradosPlugin
             this.btnDeleteSavedGoogleKey.Text = MtProviderConfDialogResources.btnDeleteSavedGoogleKey_Text;
             this.btnDeleteSavedMicrosoftCreds.Text = MtProviderConfDialogResources.btnDeleteSavedMicrosoftCreds_Text;
             this.chkCatId.Text = MtProviderConfDialogResources.chkCatId_Text;
+            this.btnDeleteSavedBaiduCreds.Text = MtProviderConfDialogResources.btnDeleteSavedBaiduCreds_Text;
             this.chkPlainTextOnly.Text = MtProviderConfDialogResources.chkPlainTextOnly_Text;
             this.chkResendDrafts.Text = MtProviderConfDialogResources.chkResendDrafts_Text;
             this.chkSaveCred.Text = MtProviderConfDialogResources.chkSaveCred_Text;
             this.chkSaveKey.Text = MtProviderConfDialogResources.chkSaveKey_Text;
+            this.chkSaveAppIDandKey.Text = MtProviderConfDialogResources.chkSaveAppIDandKey_Text;
             this.chkUsePostEdit.Text = MtProviderConfDialogResources.chkUsePostEdit_Text;
             this.chkUsePreEdit.Text = MtProviderConfDialogResources.chkUsePreEdit_Text;
             this.groupBox3.Text = MtProviderConfDialogResources.groupBox3_Text;
             this.groupBox4.Text = MtProviderConfDialogResources.groupBox4_Text;
             this.groupBoxGT.Text = MtProviderConfDialogResources.groupBoxGT_Text;
             this.groupBoxMT.Text = MtProviderConfDialogResources.groupBoxMT_Text;
+            this.groupBoxBt.Text = MtProviderConfDialogResources.groupBoxBT_Text;
             this.groupBoxPostedit.Text = MtProviderConfDialogResources.groupBoxPostedit_Text;
             this.groupBoxPreedit.Text = MtProviderConfDialogResources.groupBoxPreedit_Text;
             this.lblClientID.Text = MtProviderConfDialogResources.lblClientID_Text;
             this.lblClientSecret.Text = MtProviderConfDialogResources.lblClientSecret_Text;
+            this.lbAppID.Text = MtProviderConfDialogResources.lbAppID_Text;
+            this.lbBaiduApiKey.Text = MtProviderConfDialogResources.lbBaiduApiKey_Text;
             this.tabPage1.Text = MtProviderConfDialogResources.tabPage1_Text;
             this.tabPage3.Text = MtProviderConfDialogResources.tabPage3_Text;
             
@@ -193,6 +209,14 @@ namespace MtEnhancedTradosPlugin
             ttip_ms += System.Environment.NewLine + MtProviderConfDialogResources.KeyForm_SaveKeyTooltip3_MS;
             ToolTip toolTip2 = new ToolTip(this.components);
             toolTip2.SetToolTip(chkSaveCred, ttip_ms);
+
+            //create multiline tooltip text from strings in form resource file
+            string ttip_bd = MtProviderConfDialogResources.KeyForm_SaveKeyTooltip1_BD;
+            ttip_bd += System.Environment.NewLine + MtProviderConfDialogResources.KeyForm_SaveKeyTooltip2;
+            ttip_bd += System.Environment.NewLine + MtProviderConfDialogResources.KeyForm_SaveKeyTooltip3_BD;
+            ToolTip toolTip3 = new ToolTip(this.components);
+            toolTip2.SetToolTip(chkSaveAppIDandKey, ttip_bd);
+
         }
 
 
@@ -202,13 +226,22 @@ namespace MtEnhancedTradosPlugin
             {
                 groupBoxGT.Location = showcredsloc;
                 groupBoxMT.Hide();
+                groupBoxBt.Hide();
                 groupBoxGT.Show();
             }
             else if (comboProvider.Text.Equals(msTranslatorString)) //these strings should not be localized and are therefore hard-coded
             {
                 groupBoxMT.Location = showcredsloc;
                 groupBoxGT.Hide();
+                groupBoxBt.Hide();
                 groupBoxMT.Show();
+            }
+            else if (comboProvider.Text.Equals(bTranslateString)) //these strings should not be localized and are therefore hard-coded
+            {
+                groupBoxBt.Location = showcredsloc;
+                groupBoxGT.Hide();
+                groupBoxMT.Hide();
+                groupBoxBt.Show();
             }
 
         }
@@ -221,8 +254,11 @@ namespace MtEnhancedTradosPlugin
             Options.apiKey = textApiKey.Text;
             Options.ClientID = txtClientId.Text;
             Options.ClientSecret = txtClientSecret.Text;
+            Options.BaiduAppID = txtAppID.Text;
+            Options.BaiduApiKey = txtBaiduApiKey.Text;
             Options.persistGoogleKey = chkSaveKey.Checked;
             Options.persistMicrosoftCreds = chkSaveCred.Checked;
+            Options.persistBaiduCreds = chkSaveAppIDandKey.Checked;
             Options.SendPlainTextOnly = chkPlainTextOnly.Checked;
             Options.SelectedProvider = MtTranslationOptions.GetProviderType(comboProvider.Text);
             Options.UseCatID = chkCatId.Checked;
@@ -310,6 +346,19 @@ namespace MtEnhancedTradosPlugin
                 && textApiKey.Text == string.Empty)
             {
                 prompt += newLine + MtProviderConfDialogResources.validationMessageNoApiKey;
+                result = false;
+            }
+            //baidu appid and key check
+            if (comboProvider.Text.Equals(bTranslateString) //these strings should not be localized and are therefore hard-coded
+                && txtAppID.Text == string.Empty)
+            {
+                prompt += newLine + MtProviderConfDialogResources.validationMessageNoAPPID;
+                result = false;
+            }
+            if (comboProvider.Text.Equals(bTranslateString) //these strings should not be localized and are therefore hard-coded
+                && txtBaiduApiKey.Text == string.Empty)
+            {
+                prompt += newLine + MtProviderConfDialogResources.validationMessageNoBaiduApiKey;
                 result = false;
             }
             if (chkCatId.Checked && txtCatId.Text == string.Empty)
@@ -424,6 +473,54 @@ namespace MtEnhancedTradosPlugin
             }
         }
 
+        private void btnDeleteSavedBaiduCreds_Click(object sender, EventArgs e)
+        {
+            this.btCred = credstore.GetCredential(uriBt);
+            if (btCred != null && btCred.Persist)
+            {
+                credstore.RemoveCredential(uriBt);
+                chkSaveAppIDandKey.Checked = false;
+                MessageBox.Show(MtProviderConfDialogResources.deleteCredentialsMessageSavedCredsDeleted);
+            }
+            else
+            {
+                MessageBox.Show(MtProviderConfDialogResources.deleteCredentialsMessageSavedCredsEmpty);
+            }
+        }
 
+        private void toolTip1_Popup(object sender, PopupEventArgs e)
+        {
+
+        }
+
+        private void openFile_FileOk(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void txtClientId_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtClientSecret_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtCatId_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBoxGT_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtAppID_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

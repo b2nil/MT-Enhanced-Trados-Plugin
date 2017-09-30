@@ -13,16 +13,8 @@
    limitations under the License.*/
 
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
 using Sdl.LanguagePlatform.Core;
-using Sdl.LanguagePlatform.TranslationMemory;
 using Sdl.LanguagePlatform.TranslationMemoryApi;
-using MtEnhancedTradosPlugin;
-using Sdl.Core.Globalization;
 
 namespace MtEnhancedTradosPlugin
 {
@@ -35,8 +27,9 @@ namespace MtEnhancedTradosPlugin
         public static readonly string ListTranslationProviderScheme = "mtenhancedprovider";
         private MtTranslationProviderGTApiConnecter gtConnect;
         private MstTranslateConnect.ApiConnecter mstConnect;
+        private BdtTranslateConnect.BaiduApiConnecter bdtConnect;
 
-        
+
 
         #region "ListTranslationOptions"
         public MtTranslationOptions Options
@@ -76,6 +69,8 @@ namespace MtEnhancedTradosPlugin
                     return PluginResources.Google_Name;
                 else if (Options.SelectedProvider == MtTranslationOptions.ProviderType.MicrosoftTranslator)
                     return PluginResources.Microsoft_Name;
+                else if (Options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+                    return PluginResources.Baidu_Name;
                 else
                     return PluginResources.Plugin_Name;
             }
@@ -158,6 +153,20 @@ namespace MtEnhancedTradosPlugin
                     gtConnect.ApiKey = Options.apiKey; //reset in case it has been changed since last time GtApiConnecter was instantiated
                 }
                 return gtConnect.isSupportedLangPair(languageDirection.SourceCulture, languageDirection.TargetCulture);
+            }
+
+            else if (Options.SelectedProvider == MtTranslationOptions.ProviderType.BaiduTranslate)
+            {
+                if (bdtConnect == null) //construct ApiConnecter if necessary 
+                {
+                    bdtConnect = new BdtTranslateConnect.BaiduApiConnecter(Options);
+                }
+                else
+                {
+                    bdtConnect.resetCrd(Options.BaiduAppID, Options.BaiduApiKey); //reset in case changed since last time the class was constructed
+                }
+
+                return bdtConnect.isSupportedLangPair(languageDirection.SourceCulture.Name, languageDirection.TargetCulture.Name);
             }
 
             //not likely to get here but...

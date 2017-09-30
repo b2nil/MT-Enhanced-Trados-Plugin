@@ -112,12 +112,12 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="form_Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAA0AMDAQAAEABABoBgAA1gAAACAgEAABAAQA6AIAAD4HAAAYGBAAAQAEAOgBAAAmCgAAEBAQAAEA
@@ -1168,5 +1168,32 @@
   </data>
   <data name="lookupFileStructureCheckXmlProblemErrorMessage" xml:space="preserve">
     <value>There was a problem loading the file: '{0}'. Make sure the contents are properly-formatted XML according to the required specifications, which are described in the plugin's documentation.</value>
+  </data>
+  <data name="groupBoxBT_Text" xml:space="preserve">
+    <value>Baidu Credentials</value>
+  </data>
+  <data name="btnDeleteSavedBaiduCreds_Text" xml:space="preserve">
+    <value>Delete Baidu APPID and Key</value>
+  </data>
+  <data name="chkSaveAppIDandKey_Text" xml:space="preserve">
+    <value>Save ID and Key for future sessions</value>
+  </data>
+  <data name="KeyForm_SaveKeyTooltip1_BD" xml:space="preserve">
+    <value>NOTE: once key has been saved, it can be deleted by pressing the delete button,</value>
+  </data>
+  <data name="KeyForm_SaveKeyTooltip3_BD" xml:space="preserve">
+    <value>Simply removing the provider will not delete the credentials after they have been saved.</value>
+  </data>
+  <data name="lbAppID_Text" xml:space="preserve">
+    <value>Baidu APP ID</value>
+  </data>
+  <data name="lbBaiduApiKey_Text" xml:space="preserve">
+    <value>Baidu API Key</value>
+  </data>
+  <data name="validationMessageNoAPPID" xml:space="preserve">
+    <value>Baidu Translate selected but APP ID not specified</value>
+  </data>
+  <data name="validationMessageNoBaiduApiKey" xml:space="preserve">
+    <value>Baidu Translate selected but API Key not specified</value>
   </data>
 </root>
