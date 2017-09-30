@@ -19,4 +19,9 @@ Builds targeting Trados Studio 2014:
 Builds targeting Trados Studio 2015:
 (ProgramFiles (x86))\SDL\SDL Trados Studio\Studio4
 
+Builds targeting Trados Studio 2017:
+(ProgramFiles (x86))\SDL\SDL Trados Studio\Studio5
+
 You must have the corresponding version of Trados Studio installed on your development machine for the build task to find these references in the above locations or the project won't build correctly.
+
+Trados Studio 2017 requires .NET Framework 4.5.2 to build.
