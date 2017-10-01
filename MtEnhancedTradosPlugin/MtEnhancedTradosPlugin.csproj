@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="myKey.snk" />
     <None Include="Resources\baidu_image.bmp" />
     <EmbeddedResource Include="PluginResources.resx">
       <SubType>Designer</SubType>
@@ -351,8 +352,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>myKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
